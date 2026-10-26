@@ -51,63 +51,69 @@ whether you hit them:
 
 ---
 
-## 1.
+## 1. Overall accuracy
 
-<!-- Your criterion. It must name a number. -->
+Overall accuracy on the held-out test split is **at least 0.65 on every one of
+the three seeds**.
 
-
-
-**Why this target:**
-
-
-
----
-
-## 2.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** `hot_take` is 114 of my 200 posts (57%), so a model that
+calls everything a hot take already scores about 0.57. On a 30-post test split,
+0.65 means getting roughly 20 right instead of 17, so it has to correctly catch
+at least a few `analysis` or `reaction` posts. Anything lower would mean the
+fine-tuning added almost nothing over guessing the biggest label.
 
 ---
 
-## 3.
+## 2. Macro F1
 
-<!-- Your criterion. -->
+Macro F1 on the test split is **at least 0.50 on every seed**.
 
-
-
-**Why this target:**
-
-
-
----
-
-## 4.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** accuracy hides the minority labels. The "always hot_take"
+guesser has a macro F1 of only about 0.24 (0.73 for `hot_take`, 0 for the other
+two). Requiring 0.50 means the model has to be doing real work on `analysis`
+and `reaction`, not just riding the majority label.
 
 ---
 
-## 5.
+## 3. The two small labels
 
-<!-- Your criterion. -->
+`analysis` and `reaction` each have an **F1 of at least 0.40 on every seed**.
 
+**Why this target:** these are my smallest labels: 38 `analysis` (19%) and 48
+`reaction` (24%) posts. With a stratified 15% test split, that's only about 6
+`analysis` and 7 `reaction` posts in test, so one wrong post moves recall by
+about 15 points. I set this looser than criterion 1 because a score computed on
+6 posts will jump between seeds. 0.40 is still clearly above zero, which is
+where these labels would sit if the model learned to ignore them.
 
+---
 
-**Why this target:**
+## 4. Agreement with the staff labels
 
+When I label the 30 staff posts under the staff taxonomy, I agree with staff on
+**at least 21 of 30 (70%)**.
 
+**Why this target:** my hardest boundary is `analysis` vs `hot_take`: whether a
+number in the post actually carries the argument or is just decoration.
+LetsRun posts are full of times and splits, so I have to make this call on
+almost every post. In my own cold 20, I tended to call advice or questions
+`analysis` even when no checkable fact did the work. The staff notes say the
+ambiguous set makes the 70s normal, so 70% is a fair bar. Below it, I'd treat my
+own 200 labels as inconsistent rather than blame the model.
+
+---
+
+## 5. Confidence means something
+
+On every seed, accuracy on the model's **most confident third** of test posts
+is **at least 0.15 higher** than accuracy on its **least confident third**.
+
+**Why this target:** if the model is to be useful for sorting real LetsRun
+threads, a confident prediction has to be more trustworthy than an unsure one.
+Many of my posts mix a feeling with a number (e.g. reacting to a race result
+while quoting the time), so I expect those to be the low-confidence ones. A
+0.15 gap is 1–2 more correct posts out of the 10 in each third. If the
+gap is zero, the confidence score tells a reader nothing.
 
 ---
 
