@@ -189,8 +189,9 @@ correcting the labels I disagreed with (note `pre-labelled, checked`).
 
 **Base model:** `distilbert-base-uncased`
 
-**Settings:** Run 1 used the notebook defaults: 3 epochs, learning rate 2e-5,
-batch size 16, max length 128, seed 42. Trained on Apple Silicon (`mps`),
+**Settings:** Final run: 10 epochs, learning rate 5e-5, batch size 16, max
+length 128, seed 42. (Run 1 used the notebook defaults of 3 epochs and
+learning rate 2e-5.) Trained on Apple Silicon (`mps`),
 torch 2.14.1.
 
 **Anything I changed from the defaults, and why:** Run 1 collapsed. The model
@@ -200,10 +201,29 @@ always guessing the biggest label (57% of my data). With only 140 training
 posts, 3 epochs at batch size 16 is about 27 update steps at a small learning
 rate, which wasn't enough for the model to move away from the majority label.
 For run 2 I raised **epochs to 10** and **learning rate to 5e-5**, keeping
-everything else the same.
-<!-- ⚠️ Fill in after you re-run: "Run 2: accuracy ___, macro F1 ___,
-     F1 analysis ___ / hot_take ___ / reaction ___." If run 2 also collapses,
-     say so plainly. -->
+everything else the same (same seed, so the same 30 test posts).
+
+That fixed the collapse. Run 2 (seed 42, the one in `results.json`):
+
+| Measure | Run 1 (defaults) | Run 2 (10 epochs, lr 5e-5) |
+|---|---|---|
+| Accuracy | 0.567 | 0.700 |
+| Macro F1 | 0.241 | 0.656 |
+| F1 `analysis` | 0.00 | 0.67 |
+| F1 `hot_take` | 0.72 | 0.76 |
+| F1 `reaction` | 0.00 | 0.55 |
+
+The model now predicts all three labels. Its weakest spot is `reaction`: only
+3 of the 7 reaction posts in test were found (recall 0.43), and the other 4
+were called `hot_take`. That's the reaction vs hot_take boundary, which makes
+sense: many of my `reaction` posts are people reporting their own times,
+which read a lot like confident claims. `analysis` and `hot_take` were
+confused in both directions (2 each way). The confidence score is useful: the
+model was right on 9 of its 10 most confident predictions but only 4 of its 10
+least confident.
+
+This is one seed on a 30-post test split, so these numbers aren't stable yet.
+Unit 6 reruns them on three seeds.
 
 **Split sizes:** 140 train / 30 validation / 30 test (stratified 70/15/15,
 seed 42). The test split has 17 `hot_take`, 7 `reaction` and 6 `analysis`.
