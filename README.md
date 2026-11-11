@@ -281,8 +281,7 @@ the order. None of the targets were changed after seeing results.
 | F1 — `label_two` |  |  |  |
 
 **What I predicted before I looked:**
-<!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
-     prediction made afterwards isn't one. -->
+I expect the baseline to score about 0.50 accuracy and 0.40 macro F1, well below my trained model (0.70 / 0.656). It has never seen LetsRun posts and only gets one sentence per label. I expect it to do best on reaction, because first-person feelings and race reports are easy to spot, and maybe beat my model’s 0.43 recall there. I expect it to struggle most on analysis vs hot_take, because the difference is whether a fact actually carries the argument, and a definition alone can’t teach that. If the gap turns out smaller than 0.05 accuracy (under 2 posts out of 30), I’ll treat the two models as tied.
 
 **What the gap actually means:**
 <!-- If the baseline matched your trained model, your fine-tuning added
