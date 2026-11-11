@@ -275,17 +275,17 @@ the order. None of the targets were changed after seeing results.
 
 | Measure | Baseline | Trained | Difference |
 |---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| Overall accuracy | 0.200 | 0.700 | +0.500 |
+| Macro F1 | 0.111 | 0.656 | +0.545 |
+| F1 — `analysis` | 0.333 | 0.667 | +0.333 |
+| F1 — `hot_take` | 0.000 | 0.757 | +0.757 |
+| F1 — `reaction` | 0.000 | 0.545 | +0.545 |
 
 **What I predicted before I looked:**
 I expect the baseline to score about 0.50 accuracy and 0.40 macro F1, well below my trained model (0.70 / 0.656). It has never seen LetsRun posts and only gets one sentence per label. I expect it to do best on reaction, because first-person feelings and race reports are easy to spot, and maybe beat my model’s 0.43 recall there. I expect it to struggle most on analysis vs hot_take, because the difference is whether a fact actually carries the argument, and a definition alone can’t teach that. If the gap turns out smaller than 0.05 accuracy (under 2 posts out of 30), I’ll treat the two models as tied.
 
 **What the gap actually means:**
-<!-- If the baseline matched your trained model, your fine-tuning added
-     nothing — and that is a real finding, not a failure. Say it plainly. -->
+I expected 'hot_take' to be its best label but it showed 0. The trained model beat the baseline by 0.545 macro F1 (21 vs 6 correct out of 30), far more than the 1–2 posts chance could explain, so fine-tuning on my 140 labelled posts clearly taught the model something my definitions alone could not. But the baseline labelled every single post analysis, likely because my analysis definition (“makes an argument…”) fits almost any opinion post, so this gap partly reflects a weak opponent rather than a strong model. The fairer comparison is the “always guess hot_take” strategy (0.57 accuracy), which my model beats by only about 4 posts: useful, but still modest.
 
 
 
