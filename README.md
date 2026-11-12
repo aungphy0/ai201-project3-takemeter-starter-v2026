@@ -298,27 +298,25 @@ I expected 'hot_take' to be its best label but it showed 0. The trained model be
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1.  | Accuracy >= 0.65 | 0.70 | 0.56 | 0.63 | fails on 2 seeds |
+| 2.  | Macro F1 >= 0.50 | 0.65 | 0.48 | 0.57 | seed 7 just misses |
+| 3.  | analysis/reaction F1 >= 0.40 | 0.67/0.55  | 0.33/0.43 | 0.67/0.31 | a different label fails each time |
+| 4.  | Staff agreement >= 21/30 |  |  |  |   |
+| 5.  | Confidence gap >= 0.15 | 0.90-0.40=0.50 | 0.80-0.20=0.60 | 0.90-0.40=0.50 | met on all seeds |
 
 ### Confusion matrix
 
 <!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
      An image of a matrix earns nothing. -->
 
-| true \ predicted |  |  |  |
+| true \ predicted | analysis | hot_take | reaction |
 |---|---|---|---|
-| **** |  |  |  |
-| **** |  |  |  |
-| **** |  |  |  |
+| analysis | 4 | 2 | 0 |
+| hot_take | 2 | 14 | 1 |
+| reaction | 0 | 4 | 3 |
 
 **My biggest off-diagonal number, and what it means:**
-<!-- Not "the model made mistakes" — WHICH boundary it didn't learn, and which
-     direction. "7 real analysis posts were called hot_take and only 3 went the
-     other way" is a direction, not just an error rate. -->
+My biggest off-diagonal number is 4: four real reaction posts were called hot_take, while only 1 hot_take was called reaction, so the model leans toward hot_take on this pair rather than finding it hard in both directions. I think this happens because many of my reaction posts report the writer’s own race time, which reads like a confident claim. The other two seeds show the same confusion, so it points to a fuzzy labelling boundary that Milestone 3’s agreement check can test.
 
 
 
