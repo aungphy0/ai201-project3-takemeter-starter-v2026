@@ -365,24 +365,72 @@ whether that fuzziness is in my own labelling.
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Overall accuracy | >= 0.65 on every seed | MISSED | 0.70 / 0.57 / 0.63. Only seed 42 clears it; seeds 7 and 2024 fall short. |
+| 2 | Macro F1 | >= 0.50 on every seed | MISSED | 0.66 / 0.49 / 0.57. Seed 7 misses by 0.01, but the target says every seed. |
+| 3 | `analysis` and `reaction` F1 | each >= 0.40 on every seed | MISSED | `analysis` is 0.33 on seed 7 and `reaction` is 0.31 on seed 2024. A different label fails each time, and no seed has both below. |
+| 4 | Staff agreement | >= 21/30 | MISSED | 15/30 (50%), 6 posts short. No model involved, so it's the same on every seed. |
+| 5 | Confidence gap | top third >= bottom third + 0.15, every seed | MET | Gaps of 0.50 / 0.60 / 0.50, all well above 0.15. |
 
 **Diagnoses**
 
-<!-- For each miss: the cause, and how you know. The four common causes are:
-     too few examples for a label, a boundary you applied inconsistently, a
-     genuinely hard label pair, and a task the model can't reach from this
-     much data.
+<!-- DRAFT: check every claim and rewrite in your own words. -->
 
-     ⚠️ Use your agreement report as evidence. It is the only instrument you
-     have that can tell a LABELLING problem from a MODEL problem, and this
-     section is graded on whether you used it that way. -->
+**Criterion 4 (agreement 15/30): a labelling-consistency problem, which
+feeds the other misses.**
+9 of my 15 disagreements with staff are on `reaction` vs `hot_take`, and they
+go both ways: 5 posts staff called `reaction` I called `hot_take`, and 4 the
+other way round. The posts I called `hot_take` were short first-person reports
+with no general claim ("Third DNF this year…", "Got up at 5, drove ninety
+minutes, and it's cancelled…"). The posts I called `reaction` were general
+claims said with feeling ("Nobody actually enjoys the long run…"). Staff rule 2
+covers exactly this, and 8 of these 9 are pile (a) in my adjudication: I knew
+the rule and applied it loosely. 5 of the other 6 are posts staff called `analysis` and I
+didn't. In most of them (the heat loop, the hill split, three runners in
+different shoes) the fact was the writer's own measurement, and I treated
+"personal" as "not evidence". Only once did it go the other way: I called
+"Road racing peaked in about 2015…" `analysis` because it has a year in it,
+which is exactly the decoration rule 1 warns about.
 
+**Criteria 1, 2 and 3: two causes, and the agreement report separates them.**
 
+*Cause 1: a boundary I applied inconsistently (`reaction` vs `hot_take`).*
+Across the three seeds, the model's biggest confusion is the same pair I
+disagreed with staff on: 10 real `reaction` posts called `hot_take` and 7
+`hot_take` posts called `reaction` (summed confusion matrix). It's confused
+both ways, not lopsided, and that matches my own labelling: I made the same
+mistake in both directions on the staff set. If I can't keep the line straight
+on 30 posts with written rules in front of me, my 200 training labels almost
+certainly blur it too, so the model is learning from contradictory examples.
+`labels.csv` backs this up: all 180 pre-labelled rows still carry the note
+"pre-labelled by Claude - CHECK", 27 `reaction` rows were tagged "(was
+personal)", and 23 rows are marked "(unsure)". The `reaction` label ended up
+meaning "personal" rather than "a feeling about something that just happened".
+This is the main reason `reaction` F1 drops to 0.31 on seed 2024.
+
+*Cause 2: too few examples for the small labels.*
+`analysis` has 38 posts and `reaction` 48, so about 27 and 34 land in
+training and only 6 and 7 in each test split. `hot_take` (17 test posts)
+barely moves across seeds (F1 0.71–0.76). `analysis` swings from 0.67 to 0.33
+and back, and `reaction` from 0.55 to 0.31. On seed 7, `analysis` got 2 of 6
+right, and that one label is what pulls macro F1 down to 0.49 (criterion 2)
+and accuracy to 0.57 (criterion 1). Accuracy moved 0.133 across seeds, more
+than the notebook's 10-point line, so a target like 0.65 can't hold reliably
+on a 30-post test set. This part is a data-size problem, not a labelling one.
+`analysis` vs `hot_take` is a smaller confusion in the model (6 and 5 summed),
+and my staff disagreements there point the same way as Cause 1: I'm stricter
+about calling something `analysis` than staff are. That makes the small
+`analysis` label even smaller and noisier.
+
+**Not the model:** the confidence gap (criterion 5) is met on every seed
+(0.50–0.60). When the model is sure, it's right 80–90% of the time, so it
+*is* learning a real signal. The misses cluster where my labels are
+inconsistent or thin, not across the board.
+
+**What this points to for Milestone 5:** relabel the `reaction`/`hot_take`
+posts in `labels.csv` strictly by rule 2 (general claim → `hot_take`; the
+writer's own just-happened experience → `reaction`), starting with the
+"(unsure)" and "(was personal)" rows, then re-run the three seeds with
+`RUN_LABEL = "after"`.
 
 ---
 
@@ -431,139 +479,155 @@ whether that fuzziness is in my own labelling.
 >
 > *Staff said / I said:* `analysis` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. Rule 3: recency doesn't outrank evidence, and this post isn't even recent. A named date (2019), a named rule change (top-6 to top-10) and a named result (B team above A twice) are the whole argument for "it's the scoring rewarding turnout". Nothing in it is a feeling, so `reaction` doesn't fit at all.
 >
-> *Which pile:*
+> *Which pile:* (a). Rule 1 covered it and the fact is clearly load-bearing. I applied it loosely.
 
 **2.**
 > *The post:* "Everyone blames the hill at 18 miles. I split the field into people who ran the first half under 1:45 and over, and the slowdown after 18 was almost identical for both groups. If the hill were the problem the fast starters would fall apart harder."
 >
 > *Staff said / I said:* `analysis` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. It opens like a hot take ("Everyone blames the hill"), but rule 1 asks whether the fact carries the argument, and here it does: the writer splits the field at 1:45, reports that the slowdown was the same for both groups, and draws the inference from that. Take the test out and there's no conclusion left.
 >
-> *Which pile:*
+> *Which pile:* (a). I let the confident opening outweigh the evidence that followed.
 
 **3.**
 > *The post:* "Ran the same loop in 4C and in 24C within a fortnight, same effort by heart rate. 90 seconds slower in the heat over six miles. People keep saying heat costs you 'a bit' and it's more than that."
 >
 > *Staff said / I said:* `analysis` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. 4C vs 24C, the same heart-rate effort, and 90 seconds over six miles is the reason given for "more than a bit". It's one runner and not a real experiment, but the staff definition only asks for a checkable fact doing work, not good science. Rule 4 agrees: most of the words go to the measurement, not the claim.
 >
-> *Which pile:*
+> *Which pile:* (a). I treated the writer's own measurement as "just personal", which the rules don't support.
 
 **4.**
 > *The post:* "The 10K route was remeasured in 2021 and came out 60 metres long. Everyone comparing PBs from before and after that is comparing two different races, which is about 12 seconds at club pace."
 >
 > *Staff said / I said:* `analysis` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. A date (2021), a measurement (60 metres long) and the arithmetic consequence (about 12 seconds) are the argument that before-and-after PBs aren't comparable. That's rule 1's `analysis` example almost exactly.
 >
-> *Which pile:*
+> *Which pile:* (a). Rule 1 covers it directly.
 
 **5.**
 > *The post:* "Three of us ran the same session on the same day, different shoes, within 10 seconds of each other over 5 miles. I'm not saying shoes do nothing, but whatever they do was smaller than the noise between three people."
 >
 > *Staff said / I said:* `analysis` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right, even though they marked it HARD. `reaction` is the hardest label to defend here: there's no feeling and nothing that just happened to the writer. The hedged conclusion ("smaller than the noise") rests entirely on a checkable observation (three runners, 10 seconds, 5 miles). The hard call is `analysis` vs `hot_take`, and the fact carries it.
 >
-> *Which pile:*
+> *Which pile:* (a). The rule covered it. I reached for `reaction` because the data was personal.
 
 **6.**
 > *The post:* "Anyone who races more than once a month isn't training, they're just collecting medals."
 >
 > *Staff said / I said:* `hot_take` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. Rule 2: "Anyone who races more than once a month…" is a general claim about a group of runners, not a report of what happened to the writer. It's unsupported and confident, which is a `hot_take`.
 >
-> *Which pile:*
+> *Which pile:* (a). Rule 2 covers it directly.
 
 **7.**
 > *The post:* "The club needs to stop pretending the Tuesday session is for everyone. It isn't and it never has been."
 >
 > *Staff said / I said:* `hot_take` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. Rule 2 says a post "can be heated and still be `hot_take` if it is making a general claim", and "it isn't and it never has been" is a claim about the club, not the writer's own experience. I labelled it by its frustrated tone.
 >
-> *Which pile:*
+> *Which pile:* (a). The rule names this exact case and I missed it.
 
 **8.**
 > *The post:* "Times are down about 3% since the shoe rules changed, so obviously the shoes are the whole story and the sport has a problem."
 >
 > *Staff said / I said:* `hot_take` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. This is the rule 1 example almost word for word: the 3% is decoration and "so obviously" does the work. I called it `reaction`, which isn't even one of the two labels the post is torn between. I think I reacted to "the sport has a problem" sounding like a complaint.
 >
-> *Which pile:*
+> *Which pile:* (a). This is the clearest consistency miss of the 15, since the rule shows this exact post.
 
 **9.**
 > *The post:* "Road racing peaked in about 2015 and everything since has been marketing."
 >
 > *Staff said / I said:* `hot_take` / `analysis`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. Rule 1: "about 2015" is part of the assertion, not evidence for it. Nothing checkable is offered to show racing peaked, so the year is decoration. I gave the year more weight than it deserved.
 >
-> *Which pile:*
+> *Which pile:* (a). The rule covers it. It's the mirror image of my misses on posts 2–5: here a number I should have ignored, there numbers I should have counted.
 
 **10.**
 > *The post:* "Nobody actually enjoys the long run. They enjoy having done it, which is a completely different thing, and the sport would be more honest if it said so."
 >
 > *Staff said / I said:* `hot_take` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right, even though they marked it HARD. It reads reflective, but rule 2 asks whether the post is about the writer or about the world, and "Nobody actually enjoys the long run" is about everyone. Nothing just happened, so the `reaction` definition ("an immediate response to something that just happened") doesn't fit either.
 >
-> *Which pile:*
+> *Which pile:* (a). I labelled it by its personal, thoughtful tone rather than by what it claims.
 
 **11.**
 > *The post:* "Got up at 5, drove ninety minutes, and it's cancelled. Standing in the car park in the rain reading the email."
 >
 > *Staff said / I said:* `reaction` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. Rule 2: this is entirely what just happened to the writer (5am, ninety-minute drive, standing in the rain reading the email). There's no claim about racing or the world in it, so there's nothing for a `hot_take` to be.
 >
-> *Which pile:*
+> *Which pile:* (a). A plain `reaction` that I mislabelled.
 
 **12.**
 > *The post:* "Watching the last 400 of that and I had to stand up. Still standing up actually."
 >
 > *Staff said / I said:* `reaction` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. The writer reports their own response to something happening now ("I had to stand up. Still standing up actually"). No general claim is made, so rule 2 puts it in `reaction`.
 >
-> *Which pile:*
+> *Which pile:* (a). The rule covers it.
 
 **13.**
 > *The post:* "Blew up at 20 with the pace band still in my hand like it was going to help. Rough one."
 >
 > *Staff said / I said:* `reaction` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right. "Blew up at 20… Rough one" is the writer's own race, just finished. The jab at the pace band is about their own band, not a claim that pace bands are useless.
 >
-> *Which pile:*
+> *Which pile:* (a). I may have read the sarcasm as a general claim, but rule 2 asks what the post asserts, and it asserts nothing general.
 
 **14.**
 > *The post:* "Third DNF this year. I don't really want to talk about it, just wanted to put it somewhere."
 >
 > *Staff said / I said:* `reaction` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* Staff is right, even though they marked it HARD. Staff's worry was `analysis` ("third this year" is countable). I said `hot_take`, which is harder to defend: the post makes no claim at all. It's the writer reporting their own state ("just wanted to put it somewhere").
 >
-> *Which pile:*
+> *Which pile:* (a). Rule 2 covers it. Nothing general is asserted.
 
 **15.**
 > *The post:* "Just realised the shoes I set every PB in this year are the ones I bought by accident in the wrong size."
 >
 > *Staff said / I said:* `reaction` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* This is the one I'd still argue. Staff call it `reaction` under rule 2, and their own note says it "could be read as a wry hot take about shoe discourse". I read it that way: the point of posting it on a forum that argues endlessly about shoes is the implied claim that the shoe doesn't matter much. On balance I'd concede, because rule 2 asks what the post *says*, and every word is about the writer's own realisation. The claim is only implied, and rule 4 (most words) also points to `reaction`.
 >
-> *Which pile:*
+> *Which pile:* (c). The rule is ambiguous about implied claims, and staff flagged the same reading. My reading is defensible, though I think staff's is slightly better.
 
 **What the pattern in my disagreements tells me:**
 
+<!-- DRAFT: check that these match what you were actually thinking when you labelled. -->
 
+14 of my 15 disagreements are pile (a): the staff rule covered the post and I
+applied it loosely. Only one (the wrong-size shoes) is a genuine (c). So 50%
+mostly measures inconsistency on my part, not ambiguity in the staff set. The
+misses follow two habits. First, on `reaction` vs `hot_take` (9 of 15), I
+labelled by **tone instead of by subject**: short, blunt first-person posts
+became `hot_take`, and frustrated or reflective general claims became
+`reaction`. That's the reverse of rule 2, which only asks whether the post is
+about the writer or about the world. Second, on `analysis` (6 of 15), I
+**discounted personal measurements**: a writer's own split test, heat
+comparison or three-runner comparison is still a checkable fact doing the
+work, but I didn't count it, while I did count a year that was only
+decoration. My own taxonomy draws `reaction` vs `hot_take` with the same rule
+(writer vs world), so if I applied it this inconsistently on 30 posts, the
+same blur is very likely in my 200 training labels. It's also exactly the
+pair my model confuses in both directions.
 
 ---
 
