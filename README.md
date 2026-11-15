@@ -298,16 +298,32 @@ I expected 'hot_take' to be its best label but it showed 0. The trained model be
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  | Accuracy >= 0.65 | 0.70 | 0.56 | 0.63 | fails on 2 seeds |
-| 2.  | Macro F1 >= 0.50 | 0.65 | 0.48 | 0.57 | seed 7 just misses |
-| 3.  | analysis/reaction F1 >= 0.40 | 0.67/0.55  | 0.33/0.43 | 0.67/0.31 | a different label fails each time |
-| 4.  | Staff agreement >= 21/30 |  |  |  |   |
-| 5.  | Confidence gap >= 0.15 | 0.90-0.40=0.50 | 0.80-0.20=0.60 | 0.90-0.40=0.50 | met on all seeds |
+| 1. Overall accuracy | >= 0.65 on every seed | 0.70 | 0.57 | 0.63 | MISSED (fails on seeds 7 and 2024) |
+| 2. Macro F1 | >= 0.50 on every seed | 0.66 | 0.49 | 0.57 | MISSED (seed 7 just misses) |
+| 3. `analysis` / `reaction` F1 | each >= 0.40 on every seed | 0.67 / 0.55 | 0.33 / 0.43 | 0.67 / 0.31 | MISSED (`analysis` fails on seed 7, `reaction` on seed 2024) |
+| 4. Staff agreement | >= 21/30 | n/a | n/a | n/a | Pending Milestone 3 (doesn't depend on the seed) |
+| 5. Confidence gap (top third minus bottom third) | >= 0.15 on every seed | 0.90 − 0.40 = 0.50 | 0.80 − 0.20 = 0.60 | 0.90 − 0.40 = 0.50 | MET on all three seeds |
+
+**Spread across seeds** (notebook section 6):
+
+| Measure | Seed 42 | Seed 7 | Seed 2024 | Spread |
+|---|---|---|---|---|
+| Overall accuracy | 0.700 | 0.567 | 0.633 | 0.133 |
+| Macro F1 | 0.656 | 0.489 | 0.572 | 0.167 |
+| F1 — `analysis` | 0.667 | 0.333 | 0.667 | 0.333 |
+| F1 — `hot_take` | 0.757 | 0.706 | 0.743 | 0.051 |
+| F1 — `reaction` | 0.545 | 0.429 | 0.308 | 0.238 |
+
+Accuracy moved 0.133 across seeds, which is more than the notebook's 10-point
+line. On 30 test posts that's 21 vs 17 correct, a 4-post swing. `hot_take`
+(17 test posts) holds steady at about 0.71–0.76. The two small labels swing
+hard: `analysis` F1 halves on seed 7, and `reaction` drops from 0.55 to 0.31.
+With only 6 and 7 test posts, one or two posts decide those scores. So seed 42,
+the run I reported in unit 5, was the best of the three, not a typical one.
 
 ### Confusion matrix
 
-<!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
-     An image of a matrix earns nothing. -->
+Seed 42, the one the notebook prints:
 
 | true \ predicted | analysis | hot_take | reaction |
 |---|---|---|---|
@@ -315,8 +331,28 @@ I expected 'hot_take' to be its best label but it showed 0. The trained model be
 | hot_take | 2 | 14 | 1 |
 | reaction | 0 | 4 | 3 |
 
+Summed over all three seeds (90 test predictions), to check whether the
+pattern holds:
+
+| true \ predicted | analysis | hot_take | reaction |
+|---|---|---|---|
+| analysis | 10 | 6 | 2 |
+| hot_take | 5 | 39 | 7 |
+| reaction | 3 | 10 | 8 |
+
 **My biggest off-diagonal number, and what it means:**
-My biggest off-diagonal number is 4: four real reaction posts were called hot_take, while only 1 hot_take was called reaction, so the model leans toward hot_take on this pair rather than finding it hard in both directions. I think this happens because many of my reaction posts report the writer’s own race time, which reads like a confident claim. The other two seeds show the same confusion, so it points to a fuzzy labelling boundary that Milestone 3’s agreement check can test.
+My biggest off-diagonal number is 4: on seed 42, four real `reaction` posts
+were called `hot_take`, while only 1 `hot_take` was called `reaction`. So on
+that seed the model leans toward `hot_take` for this pair. I think this
+happens because many of my `reaction` posts report the writer's own race time,
+which reads like a confident claim. Across all three seeds the same pair is
+still the biggest problem (10 `reaction` → `hot_take`, the largest summed
+off-diagonal cell), but it isn't one-sided. Seeds 7 and 2024 each called 3
+`hot_take` posts `reaction`, so it's 10 one way and 7 the other. The model
+finds `reaction` vs `hot_take` hard in both directions, and `reaction` is
+right only 8 times out of 21. Errors going both ways usually point to a fuzzy
+boundary rather than a model bias, and Milestone 3's agreement check can show
+whether that fuzziness is in my own labelling.
 
 
 
