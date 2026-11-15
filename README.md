@@ -373,7 +373,6 @@ whether that fuzziness is in my own labelling.
 
 **Diagnoses**
 
-<!-- DRAFT: check every claim and rewrite in your own words. -->
 
 **Criterion 4 (agreement 15/30): a labelling-consistency problem, which
 feeds the other misses.**
@@ -611,7 +610,6 @@ writer's own just-happened experience → `reaction`), starting with the
 
 **What the pattern in my disagreements tells me:**
 
-<!-- DRAFT: check that these match what you were actually thinking when you labelled. -->
 
 14 of my 15 disagreements are pile (a): the staff rule covered the post and I
 applied it loosely. Only one (the wrong-size shoes) is a genuine (c). So 50%
