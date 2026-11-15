@@ -301,7 +301,7 @@ I expected 'hot_take' to be its best label but it showed 0. The trained model be
 | 1. Overall accuracy | >= 0.65 on every seed | 0.70 | 0.57 | 0.63 | MISSED (fails on seeds 7 and 2024) |
 | 2. Macro F1 | >= 0.50 on every seed | 0.66 | 0.49 | 0.57 | MISSED (seed 7 just misses) |
 | 3. `analysis` / `reaction` F1 | each >= 0.40 on every seed | 0.67 / 0.55 | 0.33 / 0.43 | 0.67 / 0.31 | MISSED (`analysis` fails on seed 7, `reaction` on seed 2024) |
-| 4. Staff agreement | >= 21/30 | n/a | n/a | n/a | Pending Milestone 3 (doesn't depend on the seed) |
+| 4. Staff agreement | >= 21/30 | 15/30 | 15/30 | 15/30 | MISSED (15/30 = 50%; the same for every seed, since no model is involved) |
 | 5. Confidence gap (top third minus bottom third) | >= 0.15 on every seed | 0.90 − 0.40 = 0.50 | 0.80 − 0.20 = 0.60 | 0.90 − 0.40 = 0.50 | MET on all three seeds |
 
 **Spread across seeds** (notebook section 6):
@@ -394,7 +394,7 @@ whether that fuzziness is in my own labelling.
      data/staff_taxonomy.md, not your own — so every argument below is made
      from those definitions and those decision rules. -->
 
-**Agreement rate:** ___ / 30 = ___%
+**Agreement rate:** 15 / 30 = 50%
 
 <!-- Nobody grades this number. A 60% who argues every disagreement from the
      stated rules beats a 95% who wrote "staff was right" nine times. Several
@@ -416,19 +416,146 @@ whether that fuzziness is in my own labelling.
      written rule two different ways on 30 posts, that is direct evidence about
      what you did across your own 200. -->
 
+**Where the 15 disagreements fall:**
+
+| Staff said | I said | Count |
+|---|---|---|
+| `reaction` | `hot_take` | 5 |
+| `hot_take` | `reaction` | 4 |
+| `analysis` | `hot_take` | 3 |
+| `analysis` | `reaction` | 2 |
+| `hot_take` | `analysis` | 1 |
+
 **1.**
-> *The post:*
+> *The post:* "The club championship scoring changed in 2019 from top-6 to top-10. Since then our B team has finished above the A team twice. That's not depth improving, it's the scoring rewarding turnout."
 >
-> *Staff said / I said:*
+> *Staff said / I said:* `analysis` / `reaction`
 >
 > *My call, and why:*
 >
 > *Which pile:*
 
 **2.**
-> *The post:*
+> *The post:* "Everyone blames the hill at 18 miles. I split the field into people who ran the first half under 1:45 and over, and the slowdown after 18 was almost identical for both groups. If the hill were the problem the fast starters would fall apart harder."
 >
-> *Staff said / I said:*
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**3.**
+> *The post:* "Ran the same loop in 4C and in 24C within a fortnight, same effort by heart rate. 90 seconds slower in the heat over six miles. People keep saying heat costs you 'a bit' and it's more than that."
+>
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**4.**
+> *The post:* "The 10K route was remeasured in 2021 and came out 60 metres long. Everyone comparing PBs from before and after that is comparing two different races, which is about 12 seconds at club pace."
+>
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**5.**
+> *The post:* "Three of us ran the same session on the same day, different shoes, within 10 seconds of each other over 5 miles. I'm not saying shoes do nothing, but whatever they do was smaller than the noise between three people."
+>
+> *Staff said / I said:* `analysis` / `reaction`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**6.**
+> *The post:* "Anyone who races more than once a month isn't training, they're just collecting medals."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**7.**
+> *The post:* "The club needs to stop pretending the Tuesday session is for everyone. It isn't and it never has been."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**8.**
+> *The post:* "Times are down about 3% since the shoe rules changed, so obviously the shoes are the whole story and the sport has a problem."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**9.**
+> *The post:* "Road racing peaked in about 2015 and everything since has been marketing."
+>
+> *Staff said / I said:* `hot_take` / `analysis`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**10.**
+> *The post:* "Nobody actually enjoys the long run. They enjoy having done it, which is a completely different thing, and the sport would be more honest if it said so."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**11.**
+> *The post:* "Got up at 5, drove ninety minutes, and it's cancelled. Standing in the car park in the rain reading the email."
+>
+> *Staff said / I said:* `reaction` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**12.**
+> *The post:* "Watching the last 400 of that and I had to stand up. Still standing up actually."
+>
+> *Staff said / I said:* `reaction` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**13.**
+> *The post:* "Blew up at 20 with the pace band still in my hand like it was going to help. Rough one."
+>
+> *Staff said / I said:* `reaction` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**14.**
+> *The post:* "Third DNF this year. I don't really want to talk about it, just wanted to put it somewhere."
+>
+> *Staff said / I said:* `reaction` / `hot_take`
+>
+> *My call, and why:*
+>
+> *Which pile:*
+
+**15.**
+> *The post:* "Just realised the shoes I set every PB in this year are the ones I bought by accident in the wrong size."
+>
+> *Staff said / I said:* `reaction` / `hot_take`
 >
 > *My call, and why:*
 >
