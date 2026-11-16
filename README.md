@@ -720,43 +720,91 @@ Two caveats keep me from claiming more:
 <!-- For each criterion still missed: what you'd do, and why you stopped. -->
 
 
+Three criteria are still missed after the fix. Criteria 1 and 5 fail only on
+seed 7, and criterion 4 hasn't moved.
+
+**Criterion 1: accuracy (seed 7 is 0.63, target 0.65).**
+Seed 7 got 19 of 30 right; it needed 20. Most of its errors are `analysis`:
+it found only 2 of its 6 `analysis` posts and called 4 of them `hot_take`.
+*What I'd do:* collect and label about 40 more `analysis` posts, so the label
+has around 55 training examples instead of 27, and around 12 in each test
+split instead of 6. I'd also report accuracy over 5-fold cross-validation, so
+one unlucky split of 30 posts can't decide the verdict.
+*Why I stopped:* the milestone asks for one fix, and I spent it on the
+`reaction` vs `hot_take` boundary my diagnosis pointed at most strongly. New
+`analysis` posts need collecting from LetsRun threads and labelling under rule
+1, which is the boundary I'm least consistent on. Rushing that would add
+noisy labels, not better ones.
+
+**Criterion 4: staff agreement (15/30, target 21/30).**
+This one can't be fixed by re-doing the same 30 posts. I've now seen the
+staff answers, so a second attempt would measure memory, not consistency.
+*What I'd do:* turn my Milestone 3 findings into a written checklist (rule 2:
+ask "writer or world?", ignore tone; rule 1: count a personal measurement as
+a fact if it carries the argument), then label a fresh batch of about 30
+posts I've never seen and have a classmate label the same batch blind. Our
+agreement on that batch would show whether the checklist fixed the habit.
+*Why I stopped:* there's no second staff set to test against, and finding an
+independent second labeller was out of scope for this unit.
+
+**Criterion 5: confidence gap (seed 7 is 0.00, target 0.15).**
+On seed 7 the most and least confident thirds both scored 0.70, and the
+model's average confidence was the same whether it was right or wrong (0.868
+vs 0.868). So on that split, its confidence told you nothing. Seeds 42 and
+2024 still have clear gaps (0.50 and 0.30), and before the fix all three
+seeds passed.
+*What I'd do:* look at seed 7's confidently-wrong posts. I expect them to be
+`analysis` posts called `hot_take` with high confidence, which would make
+this the same `analysis` problem as criterion 1. I'd also measure the gap on
+a larger test set, because with 10 posts per third, two posts swinging the
+other way erases a 0.20 gap.
+*Why I stopped:* I can't tell a real loss of calibration from noise on 10
+posts per third, and the fix that would settle it (more data, cross-
+validation) is the same as for criterion 1.
 
 **The gap between what I meant my labels to capture and what the model
 learned:**
 <!-- Two sentences. Your confusion matrix is the evidence. -->
 
-
+I meant `analysis` to mean "a checkable fact carries the argument", but the
+model never learned that: summed over the three after-seeds it got only 10 of
+18 `analysis` posts right and called 7 of them `hot_take`, no better than
+before relabelling, while `reaction`, once I sharpened it to "about the
+writer, not the world", jumped from 8 of 21 to 18 of 24. On LetsRun almost
+every post contains a time or a split, so "has a number" can't separate
+`analysis` from `hot_take`, and 27 training examples aren't enough for the
+model to learn whether the number is doing the work.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
      SUBMISSION CHECKLIST — unit 5
 
-       [ ] criteria.md has five numbered criteria, each naming a NUMBER
-       [ ] Each has a reason underneath tied to your data or taxonomy
-       [ ] labels.csv: at least 150 rows, text/label/note, ONE file not split
-       [ ] No label above 70%
-       [ ] All five unit 5 sections have real content
-       [ ] Label Taxonomy includes the decision rule for your hardest boundary
-       [ ] The Dataset includes three hard cases
-       [ ] results.json and test_split.csv committed (the notebook does this)
-       [ ] At least four new commits
-       [ ] Repository URL submitted — WRITE IT DOWN
+       [x] criteria.md has five numbered criteria, each naming a NUMBER
+       [x] Each has a reason underneath tied to your data or taxonomy
+       [x] labels.csv: at least 150 rows, text/label/note, ONE file not split
+       [x] No label above 70%
+       [x] All five unit 5 sections have real content
+       [x] Label Taxonomy includes the decision rule for your hardest boundary
+       [x] The Dataset includes three hard cases
+       [x] results.json and test_split.csv committed (the notebook does this)
+       [x] At least four new commits
+       [x] Repository URL submitted — WRITE IT DOWN
 
      SUBMISSION CHECKLIST — unit 6
 
-       [ ] Baseline vs. Trained table, with your prediction written beforehand
-       [ ] Run Log — Before, five criteria across three seeds
-       [ ] Confusion matrix TYPED AS A MARKDOWN TABLE
-       [ ] A verdict on every criterion
-       [ ] A diagnosis for every miss, using the agreement report as evidence
-       [ ] Agreement Report with every disagreement adjudicated
-       [ ] One improvement, with Run Log — After
-       [ ] What's Still Broken
-       [ ] results_three_seeds_before.json, results_three_seeds_after.json,
+       [x] Baseline vs. Trained table, with your prediction written beforehand
+       [x] Run Log — Before, five criteria across three seeds
+       [x] Confusion matrix TYPED AS A MARKDOWN TABLE
+       [x] A verdict on every criterion
+       [x] A diagnosis for every miss, using the agreement report as evidence
+       [x] Agreement Report with every disagreement adjudicated
+       [x] One improvement, with Run Log — After
+       [x] What's Still Broken
+       [x] results_three_seeds_before.json, results_three_seeds_after.json,
            baseline_results.json and
            agreement_results.json committed
-       [ ] At least four new commits
-       [ ] The SAME repository URL as last unit
+       [x] At least four new commits
+       [x] The SAME repository URL as last unit
 
      Do not delete and recreate this repository.
      ═════════════════════════════════════════════════════════════════════ -->
