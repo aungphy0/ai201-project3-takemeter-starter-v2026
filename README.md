@@ -632,25 +632,86 @@ pair my model confuses in both directions.
 ## The Improvement
 
 **What I changed:**
+I relabelled `reaction` vs `hot_take` in `labels.csv`, applying one rule
+strictly: is the post about the writer's own running or feelings (`reaction`),
+or does it claim something about runners or the sport (`hot_take`)? Ignore
+tone. I reviewed the 60 rows most likely to be wrong: the 27 tagged "(was
+personal)", the 10 tagged "(unsure)", 21 `hot_take` posts written heavily in
+the first person, and 2 `reaction` posts full of general words. I changed 7,
+all `hot_take` → `reaction` (rows 8, 19, 87, 96, 117, 157, 196). Counts went
+from 114 / 48 / 38 to **107 `hot_take` (54%) / 55 `reaction` (28%) / 38
+`analysis` (19%)**. Claude suggested a label and a rule-2 reason for each of
+the 60 rows (`relabel_review.csv`). I made the final call on every row and
+overruled the suggestion twice (rows 6 and 196). Nothing else changed: same
+model, same settings, same three seeds.
+
+*How it was run:* the notebook kernel ran out of memory partway through
+section 6 (8 GB Mac, every seed's model stays loaded). The after-run used
+`run_seeds.py`, which runs section 6 one seed per process using the
+notebook's own functions and settings, read straight from `takemeter.ipynb`.
 
 **Which diagnosis pointed at it:**
+The criterion 4 diagnosis. 9 of my 15 staff disagreements were `reaction` vs
+`hot_take`, 8 of them pile (a), and they went in both directions. The model's
+biggest confusion across the three seeds was the same pair, also in both
+directions (10 / 7 summed). That pointed at inconsistent labels on this
+boundary rather than at the model, so I fixed the labels and left the model
+alone.
 
 ### Run Log — After
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Overall accuracy | >= 0.65 on every seed | 0.73 | 0.63 | 0.80 | MISSED (seed 7 short by 0.02; was 0.57) |
+| 2. Macro F1 | >= 0.50 on every seed | 0.73 | 0.58 | 0.77 | MET (was MISSED) |
+| 3. `analysis` / `reaction` F1 | each >= 0.40 on every seed | 0.57 / 0.88 | 0.40 / 0.67 | 0.73 / 0.71 | MET, just (seed 7 `analysis` is exactly 0.40; was MISSED) |
+| 4. Staff agreement | >= 21/30 | 15/30 | 15/30 | 15/30 | MISSED (unchanged; this fix didn't touch the staff set) |
+| 5. Confidence gap | >= 0.15 on every seed | 1.00 − 0.50 = 0.50 | 0.70 − 0.70 = 0.00 | 0.90 − 0.60 = 0.30 | MISSED (seed 7 has no gap; was MET) |
+
+| Measure | Before (42 / 7 / 2024) | After (42 / 7 / 2024) |
+|---|---|---|
+| Accuracy | 0.70 / 0.57 / 0.63 | 0.73 / 0.63 / 0.80 |
+| Macro F1 | 0.66 / 0.49 / 0.57 | 0.73 / 0.58 / 0.77 |
+| F1 `analysis` | 0.67 / 0.33 / 0.67 | 0.57 / 0.40 / 0.73 |
+| F1 `hot_take` | 0.76 / 0.71 / 0.74 | 0.73 / 0.69 / 0.88 |
+| F1 `reaction` | 0.55 / 0.43 / 0.31 | 0.88 / 0.67 / 0.71 |
+
+Confusion matrix summed over the three seeds (90 test predictions each):
+
+| true \ predicted | Before: analysis | hot_take | reaction | After: analysis | hot_take | reaction |
+|---|---|---|---|---|---|---|
+| analysis | 10 | 6 | 2 | 10 | 7 | 1 |
+| hot_take | 5 | 39 | 7 | 6 | 37 | 5 |
+| reaction | 3 | 10 | 8 | 1 | 5 | 18 |
 
 **Did it help, and how do I know:**
 
-<!-- If it didn't, say so. Relabelling that didn't help is a genuinely
-     interesting result and earns full credit. -->
 
+Yes, on the boundary I targeted, and clearly enough that it isn't seed noise.
+`reaction` F1 went up on **every** seed (0.55→0.88, 0.43→0.67, 0.31→0.71).
+Summed over the three seeds, `reaction`↔`hot_take` errors fell from 17 to 10,
+and `reaction` posts correctly found went from 8 of 21 to 18 of 24. Macro F1
+rose on every seed, so criteria 2 and 3 went from MISSED to MET. The
+`analysis` row barely moved (10 right both times; `analysis`↔`hot_take`
+errors 11 → 13), which is what I'd expect from a fix that didn't touch
+`analysis`. That makes it more believable that the gain comes from the
+relabelling, not luck.
 
+Two caveats keep me from claiming more:
+1. **The test sets aren't the same posts as before.** Changing labels changes
+   the stratified split. Each test set now has 8 `reaction` and 16 `hot_take`
+   instead of 7 and 17. And 2 of the 7 relabelled posts landed in the test
+   split on seeds 7 and 2024 (0 on seed 42). So part of the gain is that the
+   test labels themselves are now more consistent, which is partly the point,
+   but it's not a pure same-posts comparison. Seed 42 had no relabelled test
+   posts and still saw `reaction` F1 rise from 0.55 to 0.88, which suggests
+   the training-side fix did real work.
+2. **Seed 7 is still the weak split.** Accuracy 0.63 misses criterion 1 by
+   one post. On that seed the confidence gap disappeared (0.70 vs 0.70), so
+   criterion 5 went from MET to MISSED. With 10 posts per third, one or two
+   posts decide that gap. Accuracy still moves 0.17 across seeds, so the
+   small-test-set problem from my diagnosis hasn't gone away. Relabelling
+   wasn't meant to fix it.
 
 ---
 
